@@ -6,12 +6,12 @@ export default {
   },
   addOrUpdate(tradeInfo) {
     if (tradeInfo.id) {
-      return request.put(`/admin/product/baseTrademark/update`);
+      return request.put(`/admin/product/baseTrademark/update`, tradeInfo);
     } else {
-      return request.post(`/admin/product/baseTrademark/save`);
+      return request.post(`/admin/product/baseTrademark/save`, tradeInfo);
     }
   },
-  getTrademarkList(page,limit) {
+  getTrademarkList(page, limit) {
     return request.get(`/admin/product/baseTrademark/${page}/${limit}`);
   }
 };

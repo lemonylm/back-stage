@@ -17,19 +17,23 @@
       <el-table-column prop="tmName" label="品牌名称"> </el-table-column>
       <el-table-column label="品牌LOGO">
         <template slot-scope="{ row, $index }">
-          <img
-            :src="row.logoUrl"
-            style="width: 80px; height: 80px"
-            alt="logo"
-          />
+          <img :src="row.logoUrl" style="width: 80px; height: 80px" />
         </template>
       </el-table-column>
-      <el-table-column prop="address" label="操作">
-        <template>
-          <el-button type="warning" icon="el-icon-edit" size="mini"
+      <el-table-column label="操作">
+        <template slot-scope="{ row, $index }">
+          <el-button
+            type="warning"
+            icon="el-icon-edit"
+            size="mini"
+            @click="showUpdateDialog(row)"
             >修改</el-button
           >
-          <el-button type="danger" icon="el-icon-delete" size="mini"
+          <el-button
+            type="danger"
+            icon="el-icon-delete"
+            size="mini"
+            @click="deleteTrademark(row)"
             >删除</el-button
           >
         </template>
@@ -42,18 +46,30 @@
       @current-change="handleCurrentChange"
       :current-page="page"
       :page-sizes="[3, 5, 10]"
-      :page-size="3"
+      :page-size="limit"
       layout="  prev, pager, next, jumper,->,sizes,total"
       :total="total"
+      :pager-count="7"
     >
     </el-pagination>
     <!-- dialog -->
-    <el-dialog title="添加品牌" :visible.sync="dialogFormVisible">
-      <el-form :model="tmForm" style="width: 80%">
-        <el-form-item label="品牌名称" :label-width="formLabelWidth">
+    <el-dialog
+      :title="tmForm.id ? '修改商品' : '添加品牌'"
+      :visible.sync="dialogFormVisible"
+    >
+      <el-form :model="tmForm" style="width: 80%" ref="tmForm" :rules="rules">
+        <el-form-item
+          label="品牌名称"
+          :label-width="formLabelWidth"
+          prop="tmName"
+        >
           <el-input v-model="tmForm.tmName" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="品牌LOGO" :label-width="formLabelWidth">
+        <el-form-item
+          label="品牌LOGO"
+          :label-width="formLabelWidth"
+          prop="logoUrl"
+        >
           <el-upload
             class="avatar-uploader"
             action="/dev-api/admin/product/fileUpload"
@@ -68,7 +84,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false"
+        <el-button type="primary" @click="addOrUpdateTrademark()"
           >确 定</el-button
         >
       </div>
@@ -80,6 +96,15 @@
 export default {
   name: "Trademark",
   data() {
+    var trademarkVaildate = (rule, value, callback) => {
+      const reg = /^(.){3,5}$/g;
+      if (reg.test(value)) {
+        callback();
+      } else {
+        callback(new Error("请输入3-5位名字"));
+      }
+    };
+
     return {
       trademarkList: [],
       page: 1,
@@ -91,6 +116,23 @@ export default {
         tmName: "",
       },
       formLabelWidth: "100px",
+      rules: {
+        tmName: [
+          {
+            required: true,
+            message: "请输入品牌名称",
+            trigger: "blur",
+          },
+          // {
+          //   min: 3,
+          //   max: 5,
+          //   message: "长度在3-5个字符内",
+          //   trigger: "change",
+          // },
+          { validator: trademarkVaildate, trigger: "change" },
+        ],
+        logoUrl: [{ required: true, message: "请选择品牌LOGO" }],
+      },
     };
   },
   methods: {
@@ -123,6 +165,10 @@ export default {
     },
     // 显示添加界面
     showAddDialog() {
+      this.tmForm = {
+        logoUrl: "",
+        tmName: "",
+      };
       this.dialogFormVisible = true;
     },
     // 上传图片之前
@@ -141,6 +187,66 @@ export default {
     // 上传成功
     handleAvatarSuccess(res, file) {
       this.tmForm.logoUrl = res.data;
+    },
+    // dialog确定按钮
+    addOrUpdateTrademark() {
+      // 整体验证
+      this.$refs.tmForm.validate(async (valid) => {
+        if (valid) {
+          try {
+            const res = await this.$API.trademark.addOrUpdate(this.tmForm);
+            if (res.code === 20000 || res.code === 200) {
+              this.$message.success(
+                this.tmForm.id ? "修改商品数据成功" : "添加商品数据成功"
+              );
+              this.dialogFormVisible = false;
+              !this.tmForm.id && (this.page = 1);
+              this.getTrademarkList();
+            } else {
+              this.$message.error("请求失败1");
+            }
+          } catch (error) {
+            this.$message.error("请求失败2" + error.message);
+          }
+        } else {
+          return false;
+        }
+      });
+    },
+    // 修改商品
+    showUpdateDialog(row) {
+      this.tmForm = { ...row };
+      this.dialogFormVisible = true;
+    },
+    // 删除商品
+    deleteTrademark(row) {
+      this.$API.trademark.delete(row.id);
+      this.$confirm(`你确定要删除${row.tmName}吗？`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(async () => {
+          try {
+            const res = await this.$API.trademark.delete(row.id);
+            if (res.code === 20000 || res.code === 200) {
+              this.$message.success("删除成功");
+              this.trademarkList.length > 1 ? this.page : (this.page -= 1);
+              this.getTrademarkList();
+            }
+          } catch (error) {
+            this.$message({
+              type: "error",
+              message: "删除失败！",
+            });
+          }
+        })
+        .catch((err) => {
+          this.$message({
+            type: "info",
+            message: "取消删除~",
+          });
+        });
     },
   },
   mounted() {
@@ -172,5 +278,13 @@ export default {
   width: 178px;
   height: 178px;
   display: block;
+}
+.el-dialog__wrapper {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 </style>
