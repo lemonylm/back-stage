@@ -46,7 +46,8 @@
                 type="danger"
                 icon="el-icon-delete"
                 size="mini"
-              >删除</HintButton>
+                >删除</HintButton
+              >
             </el-popconfirm>
           </template>
         </el-table-column>
@@ -207,7 +208,6 @@ export default {
     // 保存、提交所添加的属性值
     async submitAttrVals() {
       this.attrForm.attrValueList.filter((item) => {
-        console.log(1);
         if (item.valueName) {
           delete item.isEdit;
           return true;
@@ -240,7 +240,11 @@ export default {
     findSameAttr(value) {
       if (!this.attrForm.id) {
         const res = this.attrList.find((item) => item.attrName === value);
-        this.attrForm.attrValueList = res ? cloneDeep(res).attrValueList : [];
+        // this.attrForm.attrValueList = res ? cloneDeep(res).attrValueList : [];
+        if (res) {
+          this.$message.warning("该属性名已存在");
+          this.attrForm.attrName = "";
+        }
       }
     },
     // 离开焦点
@@ -252,6 +256,7 @@ export default {
             (item) => item !== row && item.valueName === row.valueName
           )
         ) {
+          row.valueName=''
           this.$message.error("请勿输入重复信息");
         } else {
           row.isEdit = false;
