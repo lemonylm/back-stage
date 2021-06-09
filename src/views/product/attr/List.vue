@@ -59,7 +59,6 @@ export default {
       const res = await this.$API.attr.getAttrList(categoryForm);
       if (res.code === 20000 || res.code === 200) {
         this.attrList = res.data;
-        this.categoryForm = categoryForm;
       }
     },
     // 自定义事件刷新列表
@@ -68,6 +67,8 @@ export default {
         // 列表清空
         this.attrList = [];
       } else {
+        //存储id 信息
+        this.categoryForm = categoryForm;
         // 发送请求 刷新列表
         this.getAttrList(categoryForm);
       }

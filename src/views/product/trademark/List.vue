@@ -220,7 +220,6 @@ export default {
     },
     // 删除商品
     deleteTrademark(row) {
-      this.$API.trademark.delete(row.id);
       this.$confirm(`你确定要删除${row.tmName}吗？`, "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -236,7 +235,7 @@ export default {
             }
           } catch (error) {
             this.$message({
-              type: "error",
+              type: "warning",
               message: "删除失败！",
             });
           }
