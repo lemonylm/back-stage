@@ -57,7 +57,7 @@
       :title="tmForm.id ? '修改商品' : '添加品牌'"
       :visible.sync="dialogFormVisible"
     >
-      <el-form :model="tmForm" style="width: 80%" ref="tmForm" :rules="rules">
+      <el-form :model="tmForm" style="width: 80%" ref="tmForm" :rules="rules" label-position="left"  status-icon>
         <el-form-item
           label="品牌名称"
           :label-width="formLabelWidth"
@@ -129,7 +129,7 @@ export default {
           //   message: "长度在3-5个字符内",
           //   trigger: "change",
           // },
-          { validator: trademarkVaildate, trigger: "change" },
+          { validator: trademarkVaildate, trigger: ["change","blur"] },
         ],
         logoUrl: [{ required: true, message: "请选择品牌LOGO" }],
       },

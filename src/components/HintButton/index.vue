@@ -1,6 +1,6 @@
 <template>
   <a href="javascript:;" :title="title">
-    <el-button v-bind="$attrs" v-on="$listeners">
+    <el-button v-bind="$attrs" v-on="$listeners" >
       <slot></slot>
     </el-button>
   </a>
