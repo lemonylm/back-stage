@@ -1,5 +1,10 @@
 <template>
-  <el-form :inline="true" :model="categoryForm" class="demo-form-inline">
+  <el-form
+    :inline="true"
+    :model="categoryForm"
+    class="demo-form-inline"
+    :disabled="!isShowcategorySelector"
+  >
     <el-form-item label="一级分类">
       <el-select
         v-model="categoryForm.category1Id"
@@ -48,6 +53,12 @@
 <script>
 export default {
   name: "CategorySelector",
+  props: {
+    isShowcategorySelector: {
+      type: Boolean,
+      default: true,
+    },
+  },
   data() {
     return {
       category1List: [],
@@ -99,11 +110,11 @@ export default {
       this.categoryForm.category3Id = c3Id;
     },
   },
-  computed:{
+  computed: {
     // 计算3id 便于watch
-    category3Id(){
-      return this.categoryForm.category3Id
-    }
+    category3Id() {
+      return this.categoryForm.category3Id;
+    },
   },
   watch: {
     // watch 3id变化 自定义事件发送id列表
@@ -117,5 +128,5 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 </style>

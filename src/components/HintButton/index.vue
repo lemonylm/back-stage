@@ -13,5 +13,8 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
+a{
+  margin-right: 5px;
+}
 </style>

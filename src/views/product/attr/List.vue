@@ -1,16 +1,21 @@
 <template>
   <div>
-    <el-card>
+    <el-card shadow="hover">
       <CategorySelector @changeAttrList="changeAttrList"></CategorySelector>
     </el-card>
-    <el-card style="margin-top: 20px" v-show="!isShowAddList">
+    <el-card style="margin-top: 20px" v-show="!isShowAddList" shadow="hover">
       <el-button
         :disabled="!categoryForm.category3Id"
         type="primary"
         @click="showAddList"
         >添加属性<i class="el-icon-plus el-icon--right"></i
       ></el-button>
-      <el-table :data="attrList" style="width: 100%" border>
+      <el-table
+        :data="attrList"
+        style="width: 100%"
+        border
+        empty-text="暂无数据"
+      >
         <el-table-column type="index" label="序号" width="80" align="center">
         </el-table-column>
         <el-table-column prop="attrName" label="属性名称" width="150">
@@ -25,7 +30,7 @@
             >
           </template>
         </el-table-column>
-        <el-table-column prop="prop" label="操作" width="170">
+        <el-table-column prop="prop" label="操作" width="200">
           <template slot-scope="{ row, $index }">
             <HintButton
               type="warning"
@@ -53,7 +58,7 @@
         </el-table-column>
       </el-table>
     </el-card>
-    <el-card v-show="isShowAddList" style="margin-top: 20px">
+    <el-card v-show="isShowAddList" style="margin-top: 20px" shadow="hover">
       <el-form :inline="true" :model="attrForm" @submit.native.prevent>
         <el-form-item label="属性名">
           <el-input
@@ -71,6 +76,8 @@
         >添加属性值</el-button
       >
       <el-table
+        empty-text="暂无数据"
+        stripe
         border
         :data="attrForm.attrValueList"
         style="width: 100%; margin: 20px 0"
@@ -80,6 +87,7 @@
         <el-table-column label="属性值名称" width="width">
           <template slot-scope="{ row, $index }">
             <el-input
+              style="font-size: 14px"
               size="mini"
               v-if="row.isEdit"
               v-focus
@@ -91,7 +99,7 @@
             <span
               v-else="!row.isEdit"
               @click="row.isEdit = true"
-              style="display: block"
+              style="display: block; "
               >{{ row.valueName }}</span
             >
           </template>
@@ -256,7 +264,7 @@ export default {
             (item) => item !== row && item.valueName === row.valueName
           )
         ) {
-          row.valueName=''
+          row.valueName = "";
           this.$message.error("请勿输入重复信息");
         } else {
           row.isEdit = false;

@@ -13,5 +13,9 @@ export default {
   },
   getTrademarkList(page, limit) {
     return request.get(`/admin/product/baseTrademark/${page}/${limit}`);
+  },
+  //GET /admin/product/baseTrademark/getTrademarkList
+  getList() {
+    return request.get("/admin/product/baseTrademark/getTrademarkList");
   }
 };
