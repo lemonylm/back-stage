@@ -9,7 +9,11 @@
     <el-card style="margin-top: 20px">
       <!-- 默认页 -->
       <div v-show="!isShowSpuForm && !isShowSkuForm">
-        <el-button type="primary" icon="el-icon-plus" @click="AddSPU" :disabled='!categoryForm.category3Id'
+        <el-button
+          type="primary"
+          icon="el-icon-plus"
+          @click="AddSPU"
+          :disabled="!categoryForm.category3Id"
           >添加SPU</el-button
         >
         <el-table :data="spuList" border style="width: 100%">
@@ -26,7 +30,7 @@
                 type="success"
                 size="mini"
                 icon="el-icon-plus"
-                @click="isShowSkuForm = true"
+                @click="AddSku(row)"
               ></HintButton>
               <HintButton
                 title="修改spu"
@@ -41,12 +45,18 @@
                 size="mini"
                 icon="el-icon-info"
               ></HintButton>
-              <HintButton
-                title="删除spu"
-                type="danger"
-                size="mini"
-                icon="el-icon-delete"
-              ></HintButton>
+              <el-popconfirm
+                :title="`确定删除${row.spuName}吗？`"
+                @onConfirm="removeSpu(row)"
+              >
+                <HintButton
+                  slot="reference"
+                  title="删除"
+                  type="danger"
+                  icon="el-icon-delete"
+                  size="mini"
+                ></HintButton>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -66,13 +76,15 @@
       </div>
       <!-- 添加spu页 -->
       <SpuForm
+        :c3Id="categoryForm.category3Id"
         v-show="isShowSpuForm"
         ref="spuForm"
         :visible.sync="isShowSpuForm"
+        @backToList="backToList"
       >
       </SpuForm>
       <!-- 添加sku页 -->
-      <SkuForm v-show="isShowSkuForm"></SkuForm>
+      <SkuForm ref="skuForm" v-show="isShowSkuForm" :visible.sync="isShowSkuForm"></SkuForm>
     </el-card>
   </div>
 </template>
@@ -92,7 +104,6 @@ export default {
       page: 1,
       limit: 3,
       total: 0,
-      isShowcategorySelector: true,
       isShowSpuForm: false,
       isShowSkuForm: false,
       spuList: [],
@@ -131,13 +142,40 @@ export default {
         this.total = res.data.total;
       }
     },
+    // 添加SPU按钮跳转发请求
     AddSPU() {
       this.isShowSpuForm = true;
       this.$refs.spuForm.getInitSpuFormData();
     },
+    // 修改SPU按钮跳转发请求
     modifySPU(row) {
       this.isShowSpuForm = true;
       this.$refs.spuForm.getUpdateSpuFormData(row);
+    },
+    // spu页返回list页 页面跳转
+    backToList(page) {
+      page && (this.page = 1);
+      this.getSpuList();
+    },
+    // 清除一个spu
+    async removeSpu(row) {
+      try {
+        const res = await this.$API.spu.remove(row.id);
+        if (res.code === 20000 || res.code === 200) {
+          this.$message.success("删除spu成功");
+          this.spuList.length > 1 ? this.page : (this.page -= 1);
+          this.getSpuList();
+        } else {
+          this.$message.warning("删除spu失败");
+        }
+      } catch (error) {
+        this.$message.warning("删除spu失败" + error.message);
+      }
+    },
+    // 添加sku按钮跳转发请求
+    AddSku(row) {
+      this.isShowSkuForm = true;
+      this.$refs.skuForm.initSkuInfo(row,this.categoryForm)
     },
   },
 };

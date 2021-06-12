@@ -117,7 +117,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-button type="primary">保存</el-button>
+      <el-button type="primary" @click="handleSave">保存</el-button>
       <el-button @click="handleCancel">取消</el-button>
     </el-form>
   </div>
@@ -126,6 +126,7 @@
 <script>
 export default {
   name: "SpuForm",
+  props: ["c3Id"],
   data() {
     return {
       attrIdName: "",
@@ -136,7 +137,7 @@ export default {
         spuName: "",
         category3Id: 0,
         description: "",
-        tmId: 0,
+        tmId: "",
         spuImageList: [
           // {
           //   id: 0,
@@ -194,6 +195,7 @@ export default {
       const SpuImageList = await this.$API.sku.getSpuImageList(row.id);
       if (SpuImageList.code === 200 || SpuImageList.code === 20000) {
         this.spuImageList = JSON.parse(JSON.stringify(SpuImageList.data));
+        // this.spuImageList = SpuImageList.data;
         this.spuForm.spuImageList = SpuImageList.data;
       }
     },
@@ -225,18 +227,25 @@ export default {
       });
       this.attrIdName = "";
     },
-
+    // 重置数据
+    resetForm() {
+      // this.spuForm = {
+      //   spuName: "",
+      //   category3Id: 0,
+      //   description: "",
+      //   tmId: "",
+      //   spuImageList: [],
+      //   spuSaleAttrList: [],
+      // };
+      // this.spuImageList = [];
+      // this.trademarkList = [];
+      // this.saleAttrList = [];
+      Object.assign(this._data, this.$options.data());
+    },
     // 取消清空form
     handleCancel() {
-      (this.spuForm = {
-        spuName: "",
-        category3Id: 0,
-        description: "",
-        tmId: 0,
-        spuImageList: [],
-        spuSaleAttrList: [],
-      }),
-        (this.spuImageList = []);
+      this.resetForm();
+      this.$emit("backToList");
       this.$emit("update:visible", false);
     },
     // 显示input
@@ -268,6 +277,29 @@ export default {
       row.saleAttrValueName = "";
       row.inputVisible = false;
     },
+    // 保存并提交spu
+    async handleSave() {
+      try {
+        this.spuForm.category3Id = this.c3Id;
+        this.spuForm.spuSaleAttrList.forEach((item) => {
+          delete item.saleAttrValueName;
+          delete item.inputVisible;
+        });
+        const res = await this.$API.spu.addUpdate(this.spuForm);
+        if (res.code === 20000 || res.code === 200) {
+          this.$message.success("提交成功");
+          this.resetForm();
+          this.spuForm.id
+            ? this.$emit("backToList")
+            : this.$emit("backToList", 1);
+          this.$emit("update:visible", false);
+        } else {
+          this.$message.error("提交失败");
+        }
+      } catch (error) {
+        this.$message.error("提交失败" + error.message);
+      }
+    },
   },
   computed: {
     // 格式化imglist 以便展示
@@ -291,6 +323,7 @@ export default {
       );
     },
   },
+  // 自动聚焦
   directives: {
     focus: {
       inserted(el) {

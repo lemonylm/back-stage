@@ -60,7 +60,6 @@ export default {
   addUpdate (skuInfo) {
     return request.post(`/admin/product/${skuInfo.id ? 'update' : 'save'}SkuInfo`, skuInfo)
   },
-
   /* 
   获取指定SPU的id对应的图片列表
   GET /admin/product/spuImageList/{spuId}
