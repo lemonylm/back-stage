@@ -77,7 +77,7 @@
       </el-form-item>
 
       <!-- 图片列表 -->
-      <el-form-item label="图片列表" label-position="top">
+      <el-form-item label="图片列表">
         <el-table
           :data="spuImageList"
           style="width: 100%"

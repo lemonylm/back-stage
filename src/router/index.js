@@ -62,6 +62,7 @@ export const constantRoutes = [
     component: Layout,
     name: "Product",
     meta: { title: "商品管理", icon: "el-icon-s-shop" },
+    redirect: "/product/tardemark/list",
     children: [
       {
         path: "tardemark/list",

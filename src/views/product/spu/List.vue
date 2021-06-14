@@ -16,7 +16,12 @@
           :disabled="!categoryForm.category3Id"
           >添加SPU</el-button
         >
-        <el-table :data="spuList" border style="width: 100%">
+        <el-table
+          empty-text="暂无数据"
+          :data="spuList"
+          border
+          style="width: 100%"
+        >
           <el-table-column type="index" label="序号" width="80">
           </el-table-column>
           <el-table-column prop="spuName" label="SPU名称" width="width">
@@ -44,6 +49,7 @@
                 type="info"
                 size="mini"
                 icon="el-icon-info"
+                @click="checkSkuList(row)"
               ></HintButton>
               <el-popconfirm
                 :title="`确定删除${row.spuName}吗？`"
@@ -84,8 +90,30 @@
       >
       </SpuForm>
       <!-- 添加sku页 -->
-      <SkuForm ref="skuForm" v-show="isShowSkuForm" :visible.sync="isShowSkuForm"></SkuForm>
+      <SkuForm
+        ref="skuForm"
+        v-show="isShowSkuForm"
+        :visible.sync="isShowSkuForm"
+      ></SkuForm>
     </el-card>
+
+    <!-- 查看spu的sku信息 -->
+    <el-dialog
+      :title="skuListInfo.spuName"
+      :visible.sync="skuListInfo.dialogTableVisible"
+      :before-close="handleClose"
+    >
+      <el-table :data="skuListInfo.skuList">
+        <el-table-column property="skuName" label="名称"></el-table-column>
+        <el-table-column property="price" label="价格"></el-table-column>
+        <el-table-column property="weight" label="重量"></el-table-column>
+        <el-table-column label="默认图片">
+          <template slot-scope="{ row, $index }">
+            <img :src="row.skuDefaultImg" style="width: 80px; height: 80px" />
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -108,6 +136,12 @@ export default {
       isShowSkuForm: false,
       spuList: [],
       categoryForm: {},
+      // sku列表数据
+      skuListInfo: {
+        spuName: "",
+        skuList: [],
+        dialogTableVisible: false,
+      },
     };
   },
   methods: {
@@ -124,7 +158,7 @@ export default {
     //更改category刷新spu列表
     changeSpuList(categoryForm) {
       if (!categoryForm.category3Id) {
-        this.spuList = [];
+        Object.assign(this._data, this.$options.data());
       } else {
         this.categoryForm = categoryForm;
         this.getSpuList();
@@ -175,7 +209,23 @@ export default {
     // 添加sku按钮跳转发请求
     AddSku(row) {
       this.isShowSkuForm = true;
-      this.$refs.skuForm.initSkuInfo(row,this.categoryForm)
+      this.$refs.skuForm.initSkuInfo(row, this.categoryForm);
+    },
+    // 查看sku列表信息
+    async checkSkuList(row) {
+      this.skuListInfo.dialogTableVisible = true;
+      this.skuListInfo.spuName = row.spuName;
+      const result = await this.$API.sku.getListBySpuId(row.id);
+      if (result.code === 200 || res.code === 20000) {
+        this.skuListInfo.skuList = result.data;
+      }
+    },
+    handleClose() {
+      this.skuListInfo = {
+        spuName: "",
+        skuList: [],
+        dialogTableVisible: false,
+      };
     },
   },
 };

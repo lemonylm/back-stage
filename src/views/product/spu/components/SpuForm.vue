@@ -257,7 +257,6 @@ export default {
     handleInputConfirm(row) {
       row.saleAttrValueName = row.saleAttrValueName.trim();
       if (!row.saleAttrValueName) {
-        row.saleAttrValueName = "";
         row.inputVisible = false;
         return;
       }
@@ -281,10 +280,17 @@ export default {
     async handleSave() {
       try {
         this.spuForm.category3Id = this.c3Id;
-        this.spuForm.spuSaleAttrList.forEach((item) => {
-          delete item.saleAttrValueName;
-          delete item.inputVisible;
-        });
+        this.spuForm.spuSaleAttrList = this.spuForm.spuSaleAttrList.filter(
+          (item) => {
+            if (!item.spuSaleAttrValueList.length) {
+              return false;
+            } else {
+              delete item.saleAttrValueName;
+              delete item.inputVisible;
+              return true;
+            }
+          }
+        );
         const res = await this.$API.spu.addUpdate(this.spuForm);
         if (res.code === 20000 || res.code === 200) {
           this.$message.success("提交成功");
