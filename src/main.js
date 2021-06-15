@@ -14,7 +14,7 @@ import router from "./router";
 
 import "@/icons"; // icon
 import "@/permission"; // permission control
-
+import  '@/plugins/vcharts'
 // 引入商品相关api
 import * as API from "@/api/product";
 

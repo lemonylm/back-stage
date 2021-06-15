@@ -103,7 +103,7 @@
       :visible.sync="skuListInfo.dialogTableVisible"
       :before-close="handleClose"
     >
-      <el-table :data="skuListInfo.skuList">
+      <el-table :data="skuListInfo.skuList" v-loading="loading">
         <el-table-column property="skuName" label="名称"></el-table-column>
         <el-table-column property="price" label="价格"></el-table-column>
         <el-table-column property="weight" label="重量"></el-table-column>
@@ -142,6 +142,7 @@ export default {
         skuList: [],
         dialogTableVisible: false,
       },
+      loading: false,
     };
   },
   methods: {
@@ -215,11 +216,14 @@ export default {
     async checkSkuList(row) {
       this.skuListInfo.dialogTableVisible = true;
       this.skuListInfo.spuName = row.spuName;
+      this.loading = true;
       const result = await this.$API.sku.getListBySpuId(row.id);
       if (result.code === 200 || res.code === 20000) {
         this.skuListInfo.skuList = result.data;
+        this.loading = false;
       }
     },
+    // 关闭skuList界面 并清空列表
     handleClose() {
       this.skuListInfo = {
         spuName: "",
