@@ -5,7 +5,6 @@ Vue.use(Router);
 
 /* Layout */
 import Layout from "@/layout";
-
 /**
  * Note: sub-menu only appear when route children.length >= 1
  * Detail see: https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
@@ -46,7 +45,6 @@ export const constantRoutes = [
   {
     path: "/",
     component: Layout,
-    redirect: "/dashboard",
     children: [
       {
         path: "dashboard",
@@ -55,7 +53,9 @@ export const constantRoutes = [
         meta: { title: "首页", icon: "dashboard" }
       }
     ]
-  },
+  }
+];
+export const allAsyncRoutes = [
   // sidebar侧边栏商品管理路由
   {
     path: "/product",
@@ -90,13 +90,86 @@ export const constantRoutes = [
       }
     ]
   },
-  // sidebar侧边栏首页路由
-  // sidebar侧边栏首页路由
-
+  //权限数据管理相关的路由
+  {
+    name: "Acl",
+    path: "/acl",
+    component: Layout,
+    redirect: "/acl/user/list",
+    meta: {
+      title: "权限管理",
+      icon: "el-icon-lock"
+    },
+    children: [
+      {
+        name: "User",
+        path: "user/list",
+        component: () => import("@/views/acl/user/list"),
+        meta: {
+          title: "用户管理"
+        }
+      },
+      {
+        name: "Role",
+        path: "role/list",
+        component: () => import("@/views/acl/role/list"),
+        meta: {
+          title: "角色管理"
+        }
+      },
+      {
+        name: "RoleAuth",
+        path: "role/auth/:id",
+        component: () => import("@/views/acl/role/roleAuth"),
+        meta: {
+          activeMenu: "/acl/role/list",
+          title: "角色授权"
+        },
+        hidden: true
+      },
+      {
+        name: "Permission",
+        path: "permission/list",
+        component: () => import("@/views/acl/permission/list"),
+        meta: {
+          title: "菜单管理"
+        }
+      }
+    ]
+  },
+  {
+    name: "Test",
+    path: "/test",
+    component: Layout,
+    // redirect: "/test/test1/list",
+    meta: {
+      title: "测试管理",
+      icon: "el-icon-s-tools"
+    },
+    children: [
+      {
+        name: "Test111",
+        path: "test1/list",
+        component: () => import("@/views/Test/Test1/List"),
+        meta: {
+          title: "测试1"
+        },
+      },
+      {
+        name: "Test222",
+        path: "test2/list",
+        component: () => import("@/views/Test/Test2/List"),
+        meta: {
+          title: "测试2"
+        }
+      }
+    ]
+  }
+];
+export const notFoundRoute = [
   // 404 page must be placed at the end !!!
   { path: "*", redirect: "/404", hidden: true }
 ];
-
 const createRouter = () =>
   new Router({
     // mode: 'history', // require service support

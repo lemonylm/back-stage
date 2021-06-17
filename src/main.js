@@ -14,9 +14,10 @@ import router from "./router";
 
 import "@/icons"; // icon
 import "@/permission"; // permission control
-import  '@/plugins/vcharts'
+import  "@/utils/permission.js"; // permission button
+import "@/plugins/vcharts";
 // 引入商品相关api
-import * as API from "@/api/product";
+import * as API from "@/api";
 
 // 引入categorySelector
 import CategorySelector from "@/components/CategorySelector";
@@ -33,7 +34,6 @@ if (process.env.NODE_ENV === "production") {
   const { mockXHR } = require("../mock");
   mockXHR();
 }
-
 
 // set ElementUI lang to EN
 Vue.use(ElementUI, { locale });

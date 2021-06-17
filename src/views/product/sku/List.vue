@@ -28,7 +28,7 @@
           <template slot-scope="{ row, $index }">
             <HintButton
               v-if="row.isSale === 0"
-              type="info"
+              type="success"
               title="上架"
               size="mini"
               icon="el-icon-top"
@@ -36,7 +36,7 @@
             ></HintButton>
             <HintButton
               v-else
-              type="success"
+              type="danger"
               title="下架"
               size="mini"
               icon="el-icon-bottom"
@@ -198,7 +198,7 @@ export default {
     },
     // 删除sku
     async deleteSku(id) {
-      const res = await this.$API.sku.remove(skuId);
+      const res = await this.$API.sku.remove(id);
       if (res.code === 20000 || res.code === 200) {
         this.$message.success("删除SKU成功");
         this.getSkuList();
